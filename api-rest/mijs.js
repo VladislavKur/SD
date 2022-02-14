@@ -16,18 +16,15 @@ console.log('Servidor ejecutándossdsadadasd en puerto 8080...');
 
 'use strict'
 
-const { response } = require('express');
-
 const port = process.env.port || 8888;
 const express = require('express');
-const res = require('express/lib/response');
+
 const app = express();
 
 app.get('/hola/:Estudiantes', (request, response) => {
-    res.status(200).send ({ mensaje: `Hola ${req.params.prueba} desde SD`})
-    response.send('Holita... esto funciona');
+    response.status(200).send({ mensaje: `Hola ${request.params.Estudiantes} desde SD`})
 
 });
-app.listen(8080, () => {
+app.listen(port , () => {
     console.log(` API ejecutandose desde hhtp//localhost:${port}/hola/Estudiantes`);
 });
