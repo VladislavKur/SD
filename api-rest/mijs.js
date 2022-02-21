@@ -41,7 +41,7 @@ app.put('/api/product/:productID', (request, response) =>{
 app.delete('/api/product/:productID', (request,response) =>{
     const id = request.params.productID;
     
-    request.status(200).send(({
+    response.status(200).send(({
         msg: "Se ha eliminado el prducto",
         product :id
     }));
