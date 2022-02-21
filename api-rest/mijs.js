@@ -2,40 +2,37 @@
 
 'use strict'
 
-const port = process.env.port || 3000;
-const { request, response } = require('express');
+const port    = process.env.port || 3000;
 const express = require('express');
-const logger = require('morgan');
+const logger  = require('morgan');
+const { request, response } = express;
+
 
 const app = express();  
-app.use(logger('dev'));
+
 
 // Declaramos los middleware 
+app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false })); 
 app.use(express.json());
 
-/*app.get('/hola/:Estudiantes', (request, response) => {
-    response.status(200).send({ mensaje: `Hola ${request.params.Estudiantes} desde SD`})
-
-});*/
-
-app.get( '/api/products', (request, response) =>{
+app.get( '/api/product', (request, response) =>{
     response.status(200).send({products :[]});
 });
-app.get( '/api/products/:productID', (request, response) =>{
+app.get( '/api/product/:productID', (request, response) =>{
     response.status(200).send({products :`${request.params.productID}`});
 });
-app.post( '/api/products', (request, response) =>{
+app.post( '/api/product', (request, response) =>{
     console.log(request.body);
     response.status(200).send({products :'El producto se ha recibido'});
 });
-app.put('/api/products/:productID', (request, response) =>{
+app.put('/api/product/:productID', (request, response) =>{
     response.status(200).send({products :`${request.params.productID}`});
 });
-app.delete('/api/products/:productID', (request,response) =>{
+app.delete('/api/product/:productID', (request,response) =>{
     request.status(200).send(({products :`${request.params.productID}`}));
 });
 app.listen(port , () => {
-    console.log(` API ejecutandose desde hhtp//localhost:${port}/hola/Estudiantes`);
+    console.log(` API ejecutandose desde http//localhost:${port}/hola/Estudiantes`);
 });
 
