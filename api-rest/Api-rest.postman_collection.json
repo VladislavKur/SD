@@ -50,10 +50,15 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"nombre\": \"casa post\",\n    \"tipo\" : \"inmueble\",\n    \"precio\": \"120000\",\n    \"calle\": \"C/ Menganito 21\"\n}"
+					"raw": "{\n    \"nombre\": \"casa put\",\n    \"tipo\" : \"inmueble\",\n    \"precio\": \"120000\",\n    \"calle\": \"C/ Menganito 21\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/product",
+					"raw": "http://localhost:3000/api/product/123213",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -61,7 +66,8 @@
 					"port": "3000",
 					"path": [
 						"api",
-						"product"
+						"product",
+						"123213"
 					]
 				}
 			},

@@ -16,9 +16,13 @@ app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// el servicio se puede llamar a una funcion o crearlo directamente
-app.get( '/api/product', getProductController); 
 
+
+// el servicio se puede llamar a una funcion o crearlo directamente
+
+app.listen(port , () => {
+    console.log(` API RESTFul CRUD ejecutandose desde http//localhost:${port}/api/product`);
+});
 
 app.get( '/api/product/:productID', (request, response) =>{
     response.status(200).send({products :`${request.params.productID}`});
@@ -31,6 +35,8 @@ app.post( '/api/product', (request, response) =>{
 app.put('/api/product/:productID', (request, response) =>{
     const id = request.params.productID;
     const nuevosDatos = request.body;
+    console.log(request.body);
+
     response.status(200).send({
         msg: "Actualizando Nuevos datos",
         id: id,
@@ -46,10 +52,8 @@ app.delete('/api/product/:productID', (request,response) =>{
         product :id
     }));
 });
-app.listen(port , () => {
-    console.log(` API RESTFul CRUD ejecutandose desde http//localhost:${port}/api/product`);
-});
 
+app.get( '/api/product', getProductController); 
 
 function getProductController(request, response){
     response.status(200).send({
