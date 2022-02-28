@@ -5,7 +5,12 @@
 const port    = process.env.port || 3000;
 const express = require('express');
 const logger  = require('morgan');
+const mongojs = require('mongojs'); 
 const { request, response } = express;
+
+var db = mongojs("SD");
+var id = mongojs.ObjectID;  
+//var db = mongojs('username:password@example.com/SD');
 
 
 const app = express();  
@@ -16,48 +21,90 @@ app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+app.param("coleccion", (request, response, next, coleccion)=>{
+    console.log('param/api/:coleccion');
+    console.log('coleccion: ',coleccion);
 
+    request.coleccion = db.collection(coleccion);
+    return next();
+});
 
 // el servicio se puede llamar a una funcion o crearlo directamente
 
 app.listen(port , () => {
-    console.log(` API RESTFul CRUD ejecutandose desde http//localhost:${port}/api/product`);
+    console.log(` API RESTFul CRUD ejecutandose desde http//localhost:${port}/api/:coleccion:id`);
 });
+//GET
+app.get( '/api', (request, response, next) =>{
+    console.log(request.params);
+    console.log(request.collection);
 
-app.get( '/api/product/:productID', (request, response) =>{
-    response.status(200).send({products :`${request.params.productID}`});
-});
-app.post( '/api/product', (request, response) =>{
-    console.log(request.body);
-    response.status(200).send({product : request.body });
-});
-//pasamos el ID por valor 
-app.put('/api/product/:productID', (request, response) =>{
-    const id = request.params.productID;
-    const nuevosDatos = request.body;
-    console.log(request.body);
-
-    response.status(200).send({
-        msg: "Actualizando Nuevos datos",
-        id: id,
-        "Nuevo: " :nuevosDatos
+    db.getCollectionNames((err, colecciones) => { 
+       if (err) return next(err); 
+       response.json(colecciones); 
     });
+   
 });
-//borramos por id, 
-app.delete('/api/product/:productID', (request,response) =>{
-    const id = request.params.productID;
+ app.get('/api/:coleccion', (request, response, next) => { 
+    request.coleccion.find((err, coleccion) => { 
+       if (err) return next(err); 
+       response.json(coleccion); 
+   }); 
+ }); 
+app.get( '/api/:coleccion/:id', (request, response, next) =>{
+    console.log(request.params);
+    console.log(request.collection);
     
-    response.status(200).send(({
-        msg: "Se ha eliminado el prducto",
-        product :id
-    }));
-});
-
-app.get( '/api/product', getProductController); 
-
-function getProductController(request, response){
-    response.status(200).send({
-        msg: "Todos los productos",
-        product : []
+    request.coleccion.findOne({_id: id(request.params.id)}, (err, elemento) => {
+        if(err) return next(err);
+        response.json(elemento);
     });
-};
+});
+//POST
+app.post( '/api/:coleccion', (request, response, next) =>{
+    console.log(request.body);
+    const elemento = request.body; 
+ 
+   if (!elemento.nombre) { 
+    response.status(400).json ({ 
+     error: 'Bad data', 
+     description: 'Se precisa al menos un campo <nombre>' 
+       }); 
+   } else { 
+    request.coleccion.save(elemento, (err, coleccionGuardada) => { 
+           if(err) return next(err); 
+           response.json(coleccionGuardada); 
+      }); 
+   } 
+ })
+//pasamos el ID por valor 
+//PUT
+app.put('/api/:coleccion/:id', (request, response, next) =>{
+    let elementoId = request.params.id; 
+    let elementoNuevo = request.body; 
+    request.coleccion.update({_id: id(elementoId)}, 
+            {$set: elementoNuevo}, {safe: true, multi: false}, (err, elementoModif) => { 
+       if (err) return next(err); 
+       response.json(elementoModif); 
+   }); 
+ }); 
+
+
+//borramos por id, 
+//DELETE
+app.delete('/api/:coleccion/:id', (request, response, next) => { 
+   let elementoId = request.params.id; 
+ 
+   request.coleccion.remove({_id: id(elementoId)}, (err, resultado) => { 
+        if (err) return next(err); 
+        response.json(resultado); 
+    }); 
+}); 
+
+
+
+
+
+
+
+
