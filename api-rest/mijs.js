@@ -6,6 +6,7 @@ const port    = process.env.port || 3000;
 const express = require('express');
 const logger  = require('morgan');
 const mongojs = require('mongojs'); 
+const cors    = require('cors');
 const { request, response } = express;
 
 var db = mongojs("SD");
@@ -16,10 +17,14 @@ var id = mongojs.ObjectID;
 const app = express();  
 
 
+
 // Declaramos los middleware 
 app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cors()); 
+app.use(allowCrossTokenHeader); 
+app.use(allowCrossTokenOrigin);
 
 app.param("coleccion", (request, response, next, coleccion)=>{
     console.log('param/api/:coleccion');
@@ -61,7 +66,7 @@ app.get( '/api/:coleccion/:id', (request, response, next) =>{
     });
 });
 //POST
-app.post( '/api/:coleccion', (request, response, next) =>{
+pp.post('/api/:coleccion', auth, (request, response, next) =>{
     console.log(request.body);
     const elemento = request.body; 
  
@@ -79,7 +84,7 @@ app.post( '/api/:coleccion', (request, response, next) =>{
  })
 //pasamos el ID por valor 
 //PUT
-app.put('/api/:coleccion/:id', (request, response, next) =>{
+app.put('/api/:coleccion/:id', auth, (request, response, next) =>{
     let elementoId = request.params.id; 
     let elementoNuevo = request.body; 
     request.coleccion.update({_id: id(elementoId)}, 
@@ -92,7 +97,7 @@ app.put('/api/:coleccion/:id', (request, response, next) =>{
 
 //borramos por id, 
 //DELETE
-app.delete('/api/:coleccion/:id', (request, response, next) => { 
+app.delete('/api/:coleccion/:id', auth, (request, response, next) => { 
    let elementoId = request.params.id; 
  
    request.coleccion.remove({_id: id(elementoId)}, (err, resultado) => { 
@@ -100,6 +105,35 @@ app.delete('/api/:coleccion/:id', (request, response, next) => {
         response.json(resultado); 
     }); 
 }); 
+
+//METODOS DE SEGURIDAD
+var allowMethods = (request, response, next) => { 
+    response.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); 
+  return next(); 
+}; 
+
+var allowCrossTokenHeader = (request, response, next) => { 
+  response.header("Access-Control-Allow-Headers", "token"); 
+  return next(); 
+}; 
+
+var auth = (request, response, next) => { 
+  if(request.headers.token === "password1234") { 
+      return next(); 
+  } else { 
+      return next(new Error("No autorizado")); 
+  }; 
+};
+
+var allowCrossTokenHeader = (request, response, next) => { 
+    response.header("Access-Control-Allow-Headers", "*"); 
+    return next(); 
+  };
+
+var allowCrossTokenOrigin = (request, response, next) => { 
+    response.header("Access-Control-Allow-Origin", "*"); 
+    return next(); 
+};
 
 
 
