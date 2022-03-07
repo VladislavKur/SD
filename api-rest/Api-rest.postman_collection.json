@@ -83,35 +83,6 @@
 			"response": []
 		},
 		{
-			"name": "api/familia/",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"nombre\": \"casa post\",\n    \"tipo\" : \"inmueble\",\n    \"precio\": \"120000\",\n    \"calle\": \"C/ Menganito 21\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3000/api/casas",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"api",
-						"casas"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "api/{coleccion}/{id}",
 			"request": {
 				"method": "PUT",

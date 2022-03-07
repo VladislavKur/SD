@@ -20,16 +20,6 @@ const app = express();
 
 // Declaramos los middleware 
     //METODOS DE SEGURIDAD
-var allowMethods = (request, response, next) => { 
-    response.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); 
-  return next(); 
-}; 
-
-var allowCrossTokenHeader = (request, response, next) => { 
-  response.header("Access-Control-Allow-Headers", "token"); 
-  return next(); 
-}; 
-
 var auth = (request, response, next) => { 
   if(request.headers.token === "password1234") { 
       return next(); 
@@ -41,7 +31,7 @@ var auth = (request, response, next) => {
 var allowCrossTokenHeader = (request, response, next) => { 
     response.header("Access-Control-Allow-Headers", "*"); 
     return next(); 
-  };
+};
 
 var allowCrossTokenOrigin = (request, response, next) => { 
     response.header("Access-Control-Allow-Origin", "*"); 
@@ -51,6 +41,7 @@ var allowCrossTokenOrigin = (request, response, next) => {
 app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+//para evitar errores en el servidor de cruces
 app.use(cors()); 
 app.use(allowCrossTokenHeader); 
 app.use(allowCrossTokenOrigin);
