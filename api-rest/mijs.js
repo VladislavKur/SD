@@ -19,6 +19,35 @@ const app = express();
 
 
 // Declaramos los middleware 
+    //METODOS DE SEGURIDAD
+var allowMethods = (request, response, next) => { 
+    response.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); 
+  return next(); 
+}; 
+
+var allowCrossTokenHeader = (request, response, next) => { 
+  response.header("Access-Control-Allow-Headers", "token"); 
+  return next(); 
+}; 
+
+var auth = (request, response, next) => { 
+  if(request.headers.token === "password1234") { 
+      return next(); 
+  } else { 
+      return next(new Error("No autorizado")); 
+  }; 
+};
+
+var allowCrossTokenHeader = (request, response, next) => { 
+    response.header("Access-Control-Allow-Headers", "*"); 
+    return next(); 
+  };
+
+var allowCrossTokenOrigin = (request, response, next) => { 
+    response.header("Access-Control-Allow-Origin", "*"); 
+    return next(); 
+};
+
 app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -66,7 +95,7 @@ app.get( '/api/:coleccion/:id', (request, response, next) =>{
     });
 });
 //POST
-pp.post('/api/:coleccion', auth, (request, response, next) =>{
+app.post('/api/:coleccion', auth, (request, response, next) =>{
     console.log(request.body);
     const elemento = request.body; 
  
@@ -106,34 +135,7 @@ app.delete('/api/:coleccion/:id', auth, (request, response, next) => {
     }); 
 }); 
 
-//METODOS DE SEGURIDAD
-var allowMethods = (request, response, next) => { 
-    response.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); 
-  return next(); 
-}; 
 
-var allowCrossTokenHeader = (request, response, next) => { 
-  response.header("Access-Control-Allow-Headers", "token"); 
-  return next(); 
-}; 
-
-var auth = (request, response, next) => { 
-  if(request.headers.token === "password1234") { 
-      return next(); 
-  } else { 
-      return next(new Error("No autorizado")); 
-  }; 
-};
-
-var allowCrossTokenHeader = (request, response, next) => { 
-    response.header("Access-Control-Allow-Headers", "*"); 
-    return next(); 
-  };
-
-var allowCrossTokenOrigin = (request, response, next) => { 
-    response.header("Access-Control-Allow-Origin", "*"); 
-    return next(); 
-};
 
 
 
