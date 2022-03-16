@@ -25,4 +25,31 @@ function creaToken (user){
     };
 
     return jwt.encode(payload, SECRETO);
-}
+};
+
+//Devuelve el identificador del usuario
+function decodificaToken(token){ //MIN 56 vid
+    return new Promise((resolve, reject) =>{
+        try{
+            const payload = jwt.decode(token, SECRETO, true);
+                if(payload.exp <= moment().unix()){
+                    reject({
+                        status: 401,
+                        msg: 'El token a expirado'
+                    });
+                }
+                console.log(payload);
+                resolve(payload.sub);
+        }catch{
+            reject({
+                status: 500,
+                msg: 'El token no es valido'
+            });
+        }
+    });
+};
+
+module.exports = {
+    creaToken,
+    decodificaToken
+};
