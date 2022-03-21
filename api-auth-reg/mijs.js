@@ -32,8 +32,11 @@ const OPTIONS_HTTPS ={
 const express = require('express');
 const logger  = require('morgan');
 const mongojs = require('mongojs'); 
-var helmet  = require('helmet');
-//const cors    = require('cors');
+const cors    = require('cors');
+const bcrypt = require('bcrypt');
+const TokenService = require('./services/tokenService');
+const service = require('./services/pass.service');
+const moment = require('moment');
 const { request, response } = express;
 
 var db = mongojs("SD");
@@ -42,8 +45,6 @@ var id = mongojs.ObjectID;
 
 
 const app = express();  
-
-
 
 // Declaramos los middleware 
     //METODOS DE SEGURIDAD
@@ -69,11 +70,9 @@ app.use(logger('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 //para evitar errores en el servidor de cruces
-//app.use(cors()); 
+app.use(cors()); 
 app.use(allowCrossTokenHeader); 
 app.use(allowCrossTokenOrigin);
-app.use(helmet());
-
 
 app.param("coleccion", (request, response, next, coleccion)=>{
     console.log('param/api/:coleccion');
@@ -85,7 +84,9 @@ app.param("coleccion", (request, response, next, coleccion)=>{
 
 // el servicio se puede llamar a una funcion o crearlo directamente
 
-
+app.listen(port , () => {
+    console.log(` API RESTFul CRUD ejecutandose desde http//localhost:${port}/api/:coleccion:id`);
+});
 //GET
 app.get( '/api', (request, response, next) =>{
     console.log(request.params);
