@@ -2,7 +2,25 @@
 
 'use strict'
 
-const port    = process.env.port || 3000;
+
+const bcrypt = require('bcrypt');
+
+
+//DATOS SIMULACION
+const pass1 = "pass1";
+const badPass= "pass2";
+
+bcrypt.genSalt(10, (err, salt) =>{
+    console.log(` Salt 1: ${salt}`);
+
+    bcrypt.hash(pass1 , salt, (err, hash) =>{
+        if(err) console.log (err);
+        else console.log(` Hash 1: ${hash}`);
+    });
+});
+
+
+/*const port    = process.env.port || 3000;
 const https   = require('https');
 const fs      = require('fs');
 
@@ -138,6 +156,7 @@ app.delete('/api/:coleccion/:id', auth, (request, response, next) => {
 https.createServer( OPTIONS_HTTPS, app).listen(port , () => {
     console.log(` SECURE API RESTFul CRUD ejecutandose desde https://localhost:${port}/api/:coleccion:id`);
 });
+*/
 
 
 
