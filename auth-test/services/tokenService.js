@@ -14,7 +14,10 @@ const EXP_TIME = require('../config').tokenExpTempo;
 
 //DONDE:
 //      HEADER (objeto JSON con el ....){
-//    algo
+//   {
+  "alg": "HS256",
+  "typ": "JWT"
+}
 //}
 
 function creaToken (user){

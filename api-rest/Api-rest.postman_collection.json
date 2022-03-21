@@ -11,8 +11,8 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/api",
-					"protocol": "http",
+					"raw": "https://localhost:3000/api",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
@@ -28,7 +28,19 @@
 			"name": "api/{coleccion}",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": {
+					"raw": "https://localhost:3000/api/gatos",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"gatos"
+					]
+				}
 			},
 			"response": []
 		},
@@ -38,8 +50,8 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/api/gatos/621d1f3233121e17dd41de14",
-					"protocol": "http",
+					"raw": "https://localhost:3000/api/gatos/621d1f3233121e17dd41de14",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
@@ -57,10 +69,16 @@
 			"name": "api/{coleccion}",
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "token",
+						"value": "password1234",
+						"type": "default"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{  \n    \"tipo\": \"Maine Coon\", \n    \"nombre\": \"Zarpitas\", \n    \"edad\": 3 \n} ",
+					"raw": "{  \n    \"tipo\": \"Maine Coon Seguro\", \n    \"nombre\": \"Zarpitas\", \n    \"edad\": 3 \n} ",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -68,8 +86,8 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/gatos",
-					"protocol": "http",
+					"raw": "https://localhost:3000/api/gatos",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],
@@ -86,7 +104,13 @@
 			"name": "api/{coleccion}/{id}",
 			"request": {
 				"method": "PUT",
-				"header": [],
+				"header": [
+					{
+						"key": "token",
+						"value": "password1234",
+						"type": "default"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"tipo\": \"Maine Coon3\",\n    \"nombre\": \"Zarpitas\",\n    \"edad\": 4\n}",
@@ -97,8 +121,8 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/gatos/621d1f3233121e17dd41de14",
-					"protocol": "http",
+					"raw": "https://localhost:3000/api/gatos/621d1f3233121e17dd41de14",
+					"protocol": "https",
 					"host": [
 						"localhost"
 					],

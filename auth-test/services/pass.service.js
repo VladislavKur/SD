@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt');
 
 //ENCRIPTAR PASS -- devuelve HASh con SALT
 
+//DOCUMENTAR TOKEN
+
 function encriptar_pass(password){
 
     return bcrypt.hash(password, 10);

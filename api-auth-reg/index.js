@@ -1,13 +1,19 @@
-
-
 'use strict'
 
 const port    = process.env.port || 3000;
+const https   = require('https');
+const fs      = require('fs');
+
+const OPTIONS_HTTPS ={
+    key: fs.readFileSync('./cert/key.pem'),
+    cert: fs.readFileSync('./cert/cert.pem')
+
+}
 const express = require('express');
 const logger  = require('morgan');
 const mongojs = require('mongojs'); 
 const cors    = require('cors');
-const { request, response } = express;
+
 
 var db = mongojs("SD");
 var id = mongojs.ObjectID;  
@@ -15,8 +21,6 @@ var id = mongojs.ObjectID;
 
 
 const app = express();  
-
-
 
 // Declaramos los middleware 
     //METODOS DE SEGURIDAD
@@ -56,9 +60,6 @@ app.param("coleccion", (request, response, next, coleccion)=>{
 
 // el servicio se puede llamar a una funcion o crearlo directamente
 
-app.listen(port , () => {
-    console.log(` API RESTFul CRUD ejecutandose desde http//localhost:${port}/api/:coleccion:id`);
-});
 //GET
 app.get( '/api', (request, response, next) =>{
     console.log(request.params);
@@ -125,6 +126,11 @@ app.delete('/api/:coleccion/:id', auth, (request, response, next) => {
         response.json(resultado); 
     }); 
 }); 
+
+https.createServer( OPTIONS_HTTPS, app).listen(port , () => {
+    console.log(` SECURE API RESTFul CRUD ejecutandose desde https://localhost:${port}/api/:coleccion:id`);
+});
+
 
 
 

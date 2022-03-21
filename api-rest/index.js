@@ -1,26 +1,6 @@
-
-
 'use strict'
 
-
-const bcrypt = require('bcrypt');
-
-
-//DATOS SIMULACION
-const pass1 = "pass1";
-const badPass= "pass2";
-
-bcrypt.genSalt(10, (err, salt) =>{
-    console.log(` Salt 1: ${salt}`);
-
-    bcrypt.hash(pass1 , salt, (err, hash) =>{
-        if(err) console.log (err);
-        else console.log(` Hash 1: ${hash}`);
-    });
-});
-
-
-/*const port    = process.env.port || 3000;
+const port    = process.env.port || 3000;
 const https   = require('https');
 const fs      = require('fs');
 
@@ -33,11 +13,7 @@ const express = require('express');
 const logger  = require('morgan');
 const mongojs = require('mongojs'); 
 const cors    = require('cors');
-const bcrypt = require('bcrypt');
-const TokenService = require('./services/tokenService');
-const service = require('./services/pass.service');
-const moment = require('moment');
-const { request, response } = express;
+
 
 var db = mongojs("SD");
 var id = mongojs.ObjectID;  
@@ -84,9 +60,6 @@ app.param("coleccion", (request, response, next, coleccion)=>{
 
 // el servicio se puede llamar a una funcion o crearlo directamente
 
-app.listen(port , () => {
-    console.log(` API RESTFul CRUD ejecutandose desde http//localhost:${port}/api/:coleccion:id`);
-});
 //GET
 app.get( '/api', (request, response, next) =>{
     console.log(request.params);
@@ -157,7 +130,7 @@ app.delete('/api/:coleccion/:id', auth, (request, response, next) => {
 https.createServer( OPTIONS_HTTPS, app).listen(port , () => {
     console.log(` SECURE API RESTFul CRUD ejecutandose desde https://localhost:${port}/api/:coleccion:id`);
 });
-*/
+
 
 
 
