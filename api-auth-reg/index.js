@@ -13,6 +13,8 @@ const express = require('express');
 const logger  = require('morgan');
 const mongojs = require('mongojs'); 
 const cors    = require('cors');
+const service = require('./services/pass.service.js');
+const token   = require('./services/token.service.js');
 
 
 var db = mongojs("SD");
@@ -130,6 +132,11 @@ app.delete('/api/:coleccion/:id', auth, (request, response, next) => {
 https.createServer( OPTIONS_HTTPS, app).listen(port , () => {
     console.log(` SECURE API RESTFul CRUD ejecutandose desde https://localhost:${port}/api/:coleccion:id`);
 });
+
+var password = 1234;
+function signUp(){
+    service.encriptar_pass(password);
+}
 
 
 
