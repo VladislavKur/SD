@@ -52,44 +52,55 @@ app.use(cors());
 app.use(allowCrossTokenHeader); 
 app.use(allowCrossTokenOrigin);
 
-app.param("coleccion", (request, response, next, coleccion)=>{
-    console.log('param/api/:coleccion');
-    console.log('coleccion: ',coleccion);
+// app.param("coleccion", (request, response, next, coleccion)=>{
+//     console.log('param/api/user');
+//     console.log('coleccion: ',coleccion);
 
-    request.coleccion = db.collection(coleccion);
-    return next();
-});
+//     db.user = db.collection(coleccion);
+//     return next();
+// });
 
 // el servicio se puede llamar a una funcion o crearlo directamente
 
 //GET
-app.get( '/api/coleccion', (request, response, next) =>{
-    console.log(request.params);
-    console.log(request.collection);
 
-    db.getCollectionNames((err, colecciones) => { 
+app.get('/api/user', (request, response, next) => { 
+    db.user.find((err, coleccion) => { 
        if (err) return next(err); 
-       response.json(colecciones); 
-    });
-   
-});
- app.get('/api/:coleccion', (request, response, next) => { 
-    request.coleccion.find((err, coleccion) => { 
-       if (err) return next(err); 
-       response.json(coleccion); 
-   }); 
- }); 
-app.get( '/api/:coleccion/:id', (request, response, next) =>{
+        response.json(coleccion); 
+    }); 
+}); 
+app.get('/api/auth', (request, response, next) => { 
+    //collection.map
+    db.user.find((err, coleccion) => { 
+        if (err) return next(err); 
+        var objred = coleccion.map(user => {return { 
+            nombre: user.nombre,
+            email : user.email 
+        }});
+        response.json(objred); 
+    }); 
+}); 
+app.get( '/api/user/:id', (request, response, next) =>{
     console.log(request.params);
     console.log(request.collection);
     
-    request.coleccion.findOne({_id: id(request.params.id)}, (err, elemento) => {
+    db.user.findOne({_id: id(request.params.id)}, (err, elemento) => {
+        if(err) return next(err);
+        response.json(elemento);
+    });
+});
+app.get( '/api/user/:me', (request, response, next) =>{
+    console.log(request.params);
+    console.log(request.collection);
+    
+    db.user.findOne({_id: id(request.params.id)}, (err, elemento) => {
         if(err) return next(err);
         response.json(elemento);
     });
 });
 //POST
-app.post('/api/:coleccion', auth, (request, response, next) =>{
+app.post('/api/user', auth, (request, response, next) =>{
     console.log(request.body);
     const elemento = request.body; 
  
@@ -99,18 +110,50 @@ app.post('/api/:coleccion', auth, (request, response, next) =>{
      description: 'Se precisa al menos un campo <nombre>' 
        }); 
    } else { 
-    request.coleccion.save(elemento, (err, coleccionGuardada) => { 
+    db.user.save(elemento, (err, coleccionGuardada) => { 
            if(err) return next(err); 
            response.json(coleccionGuardada); 
       }); 
    } 
- })
+ });
+ app.post('/api/auth', auth, (request, response, next) =>{
+    console.log(request.body);
+    const elemento = request.body; 
+ 
+   if (!elemento.nombre) { 
+    response.status(400).json ({ 
+     error: 'Bad data', 
+     description: 'Se precisa al menos un campo <nombre>' 
+       }); 
+   } else { 
+    db.user.save(elemento, (err, coleccionGuardada) => { 
+           if(err) return next(err); 
+           response.json(coleccionGuardada); 
+      }); 
+   } 
+ });
+app.post('/api/reg', auth, (request, response, next) =>{
+    console.log(request.body);
+    const elemento = request.body; 
+ 
+    if (!elemento.nombre) { 
+        response.status(400).json ({ 
+        error: 'Bad data', 
+        description: 'Se precisa al menos un campo <nombre>' 
+        }); 
+    }else { 
+        db.user.save(elemento, (err, coleccionGuardada) => { 
+           if(err) return next(err); 
+           response.json(coleccionGuardada); 
+        }); 
+    } 
+ });
 //pasamos el ID por valor 
 //PUT
-app.put('/api/:coleccion/:id', auth, (request, response, next) =>{
+app.put('/api/user/:id', auth, (request, response, next) =>{
     let elementoId = request.params.id; 
     let elementoNuevo = request.body; 
-    request.coleccion.update({_id: id(elementoId)}, 
+    db.user.update({_id: id(elementoId)}, 
             {$set: elementoNuevo}, {safe: true, multi: false}, (err, elementoModif) => { 
        if (err) return next(err); 
        response.json(elementoModif); 
@@ -120,17 +163,17 @@ app.put('/api/:coleccion/:id', auth, (request, response, next) =>{
 
 //borramos por id, 
 //DELETE
-app.delete('/api/:coleccion/:id', auth, (request, response, next) => { 
+app.delete('/api/user/:id', auth, (request, response, next) => { 
    let elementoId = request.params.id; 
  
-   request.coleccion.remove({_id: id(elementoId)}, (err, resultado) => { 
+   db.user.remove({_id: id(elementoId)}, (err, resultado) => { 
         if (err) return next(err); 
         response.json(resultado); 
     }); 
 }); 
 
 https.createServer( OPTIONS_HTTPS, app).listen(port , () => {
-    console.log(` SECURE API RESTFul CRUD ejecutandose desde https://localhost:${port}/api/:coleccion:id`);
+    console.log(` SECURE API RESTFul CRUD ejecutandose desde https://localhost:${port}/api/user:id`);
 });
 
 var password = 1234;
