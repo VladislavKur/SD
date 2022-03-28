@@ -1,0 +1,57 @@
+{
+	"info": {
+		"_postman_id": "bba793fb-cbbe-46ab-a4c4-c872e1f94ccf",
+		"name": "api-auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/api/auth",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				},
+				"description": "Obtenemos todos los usuarios registrados en el sistema. Mostramos versión \nreducida de GET /api/user. "
+			},
+			"response": []
+		},
+		{
+			"name": "/api/auth/me",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				},
+				"description": "Obtenemos el usuario a partir de un token válido."
+			},
+			"response": []
+		},
+		{
+			"name": "/api/auth",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": ""
+				},
+				"description": "Realiza una identificación o login (signIn) y devuelve un token válido. "
+			},
+			"response": []
+		},
+		{
+			"name": "/api/reg",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": ""
+				},
+				"description": "Realiza un registro mínimo (signUp) de un usuario y devuelve un token válido. "
+			},
+			"response": []
+		}
+	]
+}

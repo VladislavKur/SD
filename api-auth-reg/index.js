@@ -17,7 +17,7 @@ const service = require('./services/pass.service.js');
 const token   = require('./services/token.service.js');
 
 
-var db = mongojs("SD");
+var db = mongojs("User");
 var id = mongojs.ObjectID;  
 //var db = mongojs('username:password@example.com/SD');
 
@@ -63,7 +63,7 @@ app.param("coleccion", (request, response, next, coleccion)=>{
 // el servicio se puede llamar a una funcion o crearlo directamente
 
 //GET
-app.get( '/api', (request, response, next) =>{
+app.get( '/api/coleccion', (request, response, next) =>{
     console.log(request.params);
     console.log(request.collection);
 
