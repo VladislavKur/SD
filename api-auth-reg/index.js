@@ -13,8 +13,9 @@ const express = require('express');
 const logger  = require('morgan');
 const mongojs = require('mongojs'); 
 const cors    = require('cors');
-const service = require('./services/pass.service.js');
-const token   = require('./services/token.service.js');
+const service_pass = require('./services/pass.service.js');
+const service_token   = require('./services/token.service.js');
+const moment = require('moment');
 
 
 var db = mongojs("User");
@@ -132,25 +133,7 @@ app.post('/api/user', auth, (request, response, next) =>{
       }); 
    } 
  });
-app.post('/api/reg', auth, (request, response, next) =>{
-    console.log(request.body);
-    const elemento = request.body; 
- 
-    if (!elemento.nombre) { 
-        response.status(400).json ({ 
-        error: 'Bad data', 
-        description: 'Se precisa al menos un campo <nombre>' 
-        }); 
-    }else { 
-        db.user.save(elemento, (err, coleccionGuardada) => { 
-           if(err) return next(err);
-           var usu = signUp(elemento.nombre,elemento.email, elemento.password);
-           elemento.password = usu.pass;
-           elemento.token    = usu.token;
-           response.json(usu);
-        }); 
-    } 
- });
+
 //pasamos el ID por valor 
 //PUT
 app.put('/api/user/:id', auth, (request, response, next) =>{
@@ -179,20 +162,67 @@ https.createServer( OPTIONS_HTTPS, app).listen(port , () => {
     console.log(` SECURE API RESTFul CRUD ejecutandose desde https://localhost:${port}/api/user:id`);
 });
 
-function signUp(nombreusu, emailusu, pass){
+app.post('/api/auth/reg', auth, (request, response, next) =>{
+    console.log(request.body);
+    const elemento = request.body; 
+    
+    if (!elemento.nombre) { 
+        response.status(400).json ({ 
+            error: 'Bad data', 
+            description: 'Se precisa al menos un campo <nombre>' 
+        }); 
+    } else if (!elemento.email) { 
+        response.status(400).json ({ 
+            error: 'Bad data', 
+            description: 'Se precisa al menos un campo <email>' 
+        }); 
+    } else if (!elemento.pass) { 
+        response.status(400).json ({ 
+            error: 'Bad data', 
+            description: 'Se precisa al menos un campo <nombre>' 
+        }); 
+    } else { 
+        
+        db.user.findOne({ email: elemento.email }, (err, usuario)=>{
+            if(err) return next(err);
+            if(!usuario ){
+                response.status(400).json({});
+            }else{
+                service_pass.encriptar_pass(elemento.pass)
+                .then(passEnc => {
+                    console.log("aqui3");
+                    //hacer post de nombre, email y passEnc
+                   //app.post(nombre, email, passEnc);
+                   
+                   const usuario = {
+                        email: elemento.email,
+                        name: elemento.nombre,
+                        pass: 1234,
+                        signUpDate: moment().unix(),
+                        lastLogin: moment().unix()
+                        
+                    };
+                    db.user.save(usuario, (err, coleccionGuardada) => { 
+                        if(err) return next(err);
+                        const ctoken = service_token.creaToken(usuario);
+                        response.json({
+                            result: 'OK',
+                            user: coleccionGuardada,
+                            token: ctoken
+                        });
+                    }); 
+                });
 
-    var passEnc = service.encriptar_pass(pass);
-    //hacer post de nombre, email y passEnc
-   //app.post(nombre, email, passEnc);
-   const ctoken = TokenService.creaToken(usuario);
-   const usuario = {
-        email: emailusu,
-        name: nombreusu,
-        pass: pass1,
-        signUpDate: moment().unix(),
-        lastLogin: moment().unix(),
-        token: ctoken
-    };
+                
+            }
+        })
+        
+    } 
+ });
+
+function signUp(elemento, response, pass){
+
+   
     //PREGUNTAR COMO SE HARIA LA PETICION POST CON EL OBJETO USUARIO
    return usuario;
 }
@@ -212,7 +242,7 @@ function signIn( email, pass){
         } 
     }
     */
-    
+    return a;
     
 
 }
