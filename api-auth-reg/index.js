@@ -179,59 +179,53 @@ app.post('/api/auth/reg', auth, (request, response, next) =>{
     } else if (!elemento.pass) { 
         response.status(400).json ({ 
             error: 'Bad data', 
-            description: 'Se precisa al menos un campo <nombre>' 
+            description: 'Se precisa al menos un campo <pass>' 
         }); 
     } else { 
         
-        db.user.findOne({ email: elemento.email }, (err, usuario)=>{
-            if(err) return next(err);
-            if(!usuario ){
-                response.status(400).json({});
-            }else{
-                service_pass.encriptar_pass(elemento.pass)
-                .then(passEnc => {
-                    console.log("aqui3");
-                    //hacer post de nombre, email y passEnc
-                   //app.post(nombre, email, passEnc);
-                   
-                   const usuario = {
-                        email: elemento.email,
-                        name: elemento.nombre,
-                        pass: 1234,
-                        signUpDate: moment().unix(),
-                        lastLogin: moment().unix()
-                        
-                    };
-                    db.user.save(usuario, (err, coleccionGuardada) => { 
-                        if(err) return next(err);
-                        const ctoken = service_token.creaToken(usuario);
-                        response.json({
-                            result: 'OK',
-                            user: coleccionGuardada,
-                            token: ctoken
-                        });
-                    }); 
-                });
-
-                
-            }
-        })
+        signUp(elemento,response);
         
     } 
  });
 
-function signUp(elemento, response, pass){
+function signUp(elemento, response){
 
-   
-    //PREGUNTAR COMO SE HARIA LA PETICION POST CON EL OBJETO USUARIO
-   return usuario;
+    db.user.findOne({ email: elemento.email }, (err, usuario)=>{
+        if(err) return next(err);
+        if(!usuario ){
+            response.status(400).json({});
+        }else{
+            service_pass.encriptar_pass(elemento.pass)
+            .then(passEnc => {
+               const usuario = {
+                    email: elemento.email,
+                    name: elemento.nombre,
+                    pass: elemento.pass,
+                    signUpDate: moment().unix(),
+                    lastLogin: moment().unix()
+                    
+                };
+                db.user.save(usuario, (err, usuarioGuardado) => { 
+                    if(err) return next(err);
+                    const ctoken = service_token.creaToken(usuario);
+                    response.json({
+                        result: 'OK',
+                        user: usuarioGuardado,
+                        token: ctoken
+                    });
+                }); 
+            });
+
+            
+        }
+    });
 }
 
-function signIn( email, pass){
+function signIn( elemento, response){
     //recuperar con get email y passEnc 
     //comparar pass con passENc
    
-    var a = service.compare_pass(pass, passEnc);
+    //var a = service.compare_pass(pass, passEnc);
 
      /*
     var sign = false;
@@ -242,7 +236,25 @@ function signIn( email, pass){
         } 
     }
     */
-    return a;
+    db.user.findOne({ email: elemento.email }, (err, usuario)=>{
+        if(err) return next(err);
+        if(!usuario ){
+            response.status(400).json({});
+        }else{
+            service_pass.compare_pass( passNormal, elemento.pass)
+            .then(passEnc => {
+                if(err) return next(err);
+
+                response.json({
+                    result: 'OK',
+                    user: elemento,
+                    token: ctoken
+                });
+            });
+
+            
+        }
+    });
     
 
 }
