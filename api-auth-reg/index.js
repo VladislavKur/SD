@@ -117,22 +117,7 @@ app.post('/api/user', auth, (request, response, next) =>{
       }); 
    } 
  });
- app.post('/api/auth', auth, (request, response, next) =>{
-    console.log(request.body);
-    const elemento = request.body; 
- 
-   if (!elemento.nombre) { 
-    response.status(400).json ({ 
-     error: 'Bad data', 
-     description: 'Se precisa al menos un campo <nombre>' 
-       }); 
-   } else { 
-    db.user.save(elemento, (err, coleccionGuardada) => { 
-           if(err) return next(err); 
-           response.json(coleccionGuardada); 
-      }); 
-   } 
- });
+
 
 //pasamos el ID por valor 
 //PUT
@@ -192,7 +177,7 @@ function signUp(elemento, response){
 
     db.user.findOne({ email: elemento.email }, (err, usuario)=>{
         if(err) return next(err);
-        if(!usuario ){
+        if(usuario ){
             response.status(400).json({});
         }else{
             service_pass.encriptar_pass(elemento.pass)
@@ -200,7 +185,7 @@ function signUp(elemento, response){
                const usuario = {
                     email: elemento.email,
                     name: elemento.nombre,
-                    pass: elemento.pass,
+                    pass: passEnc,
                     signUpDate: moment().unix(),
                     lastLogin: moment().unix()
                     
@@ -221,35 +206,53 @@ function signUp(elemento, response){
     });
 }
 
-function signIn( elemento, response){
-    //recuperar con get email y passEnc 
-    //comparar pass con passENc
-   
-    //var a = service.compare_pass(pass, passEnc);
 
-     /*
-    var sign = false;
-    var usu = app.get(/api/user);
-    usu.forEach(element =>{
-        if(element.email == email && a == true{
-            sign = true;
-        } 
-    }
-    */
+app.post('/api/auth', auth, (request, response, next) =>{
+    console.log(request.body);
+    const elemento = request.body; 
+    
+    if (!elemento.email) { 
+        response.status(400).json ({ 
+            error: 'Bad data', 
+            description: 'Se precisa al menos un campo <email>' 
+        }); 
+    } else if (!elemento.pass) { 
+        response.status(400).json ({ 
+            error: 'Bad data', 
+            description: 'Se precisa al menos un campo <pass>' 
+        }); 
+    } else { 
+        
+        signIn(elemento,response);
+        
+    } 
+ });
+//const passNormal = "1234";
+function signIn( elemento, response){
+
     db.user.findOne({ email: elemento.email }, (err, usuario)=>{
         if(err) return next(err);
         if(!usuario ){
             response.status(400).json({});
         }else{
-            service_pass.compare_pass( passNormal, elemento.pass)
-            .then(passEnc => {
-                if(err) return next(err);
 
-                response.json({
-                    result: 'OK',
-                    user: elemento,
-                    token: ctoken
-                });
+            service_pass.compare_pass( elemento.pass, usuario.pass)
+            .then(valido => {
+
+                if(valido){
+                    //db.user.update(lastLogin)
+                    const ctoken = service_token.creaToken(usuario);
+                    response.json({
+                        result: 'OK',
+                        user: elemento,
+                        token: ctoken
+                    });
+                }else{
+                    response.json({
+                        result: 'NOT OK',
+                    });
+                }
+                
             });
 
             
@@ -258,6 +261,8 @@ function signIn( elemento, response){
     
 
 }
+
+
 
 
 
