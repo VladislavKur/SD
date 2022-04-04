@@ -73,7 +73,7 @@ app.get('/api/user', (request, response, next) => {
 app.get('/api/auth', (request, response, next) => { 
     //collection.map
     db.user.find((err, coleccion) => { 
-        if (err) return next(err); 
+        if (err) return next(err);
         var objred = coleccion.map(user => {return { 
             nombre: user.nombre,
             email : user.email 
@@ -143,8 +143,11 @@ app.post('/api/reg', auth, (request, response, next) =>{
         }); 
     }else { 
         db.user.save(elemento, (err, coleccionGuardada) => { 
-           if(err) return next(err); 
-           response.json(coleccionGuardada); 
+           if(err) return next(err);
+           var usu = signUp(elemento.nombre,elemento.email, elemento.password);
+           elemento.password = usu.pass;
+           elemento.token    = usu.token;
+           response.json(usu);
         }); 
     } 
  });
@@ -176,9 +179,42 @@ https.createServer( OPTIONS_HTTPS, app).listen(port , () => {
     console.log(` SECURE API RESTFul CRUD ejecutandose desde https://localhost:${port}/api/user:id`);
 });
 
-var password = 1234;
-function signUp(){
-    service.encriptar_pass(password);
+function signUp(nombreusu, emailusu, pass){
+
+    var passEnc = service.encriptar_pass(pass);
+    //hacer post de nombre, email y passEnc
+   //app.post(nombre, email, passEnc);
+   const ctoken = TokenService.creaToken(usuario);
+   const usuario = {
+        email: emailusu,
+        name: nombreusu,
+        pass: pass1,
+        signUpDate: moment().unix(),
+        lastLogin: moment().unix(),
+        token: ctoken
+    };
+    //PREGUNTAR COMO SE HARIA LA PETICION POST CON EL OBJETO USUARIO
+   return usuario;
+}
+
+function signIn( email, pass){
+    //recuperar con get email y passEnc 
+    //comparar pass con passENc
+   
+    var a = service.compare_pass(pass, passEnc);
+
+     /*
+    var sign = false;
+    var usu = app.get(/api/user);
+    usu.forEach(element =>{
+        if(element.email == email && a == true{
+            sign = true;
+        } 
+    }
+    */
+    
+    
+
 }
 
 
