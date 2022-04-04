@@ -1,7 +1,7 @@
 'use strict'
 
 
-const TokenService = require('./services/tokenService');
+const TokenService = require('./services/token.service');
 const moment = require('moment');
 
 
