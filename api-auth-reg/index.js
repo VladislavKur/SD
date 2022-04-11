@@ -7,7 +7,6 @@ const fs      = require('fs');
 const OPTIONS_HTTPS ={
     key: fs.readFileSync('./cert/key.pem'),
     cert: fs.readFileSync('./cert/cert.pem')
-
 }
 const express = require('express');
 const logger  = require('morgan');
@@ -21,7 +20,6 @@ const moment = require('moment');
 var db = mongojs("User");
 var id = mongojs.ObjectID;  
 //var db = mongojs('username:password@example.com/SD');
-
 
 const app = express();  
 
@@ -118,7 +116,6 @@ app.post('/api/user', auth, (request, response, next) =>{
    } 
  });
 
-
 //pasamos el ID por valor 
 //PUT
 app.put('/api/user/:id', auth, (request, response, next) =>{
@@ -130,7 +127,6 @@ app.put('/api/user/:id', auth, (request, response, next) =>{
        response.json(elementoModif); 
    }); 
  }); 
-
 
 //borramos por id, 
 //DELETE
@@ -166,15 +162,10 @@ app.post('/api/auth/reg', auth, (request, response, next) =>{
             error: 'Bad data', 
             description: 'Se precisa al menos un campo <pass>' 
         }); 
-    } else { 
-        
-        signUp(elemento,response);
-        
-    } 
+    } else signUp(elemento,response);
  });
 
 function signUp(elemento, response){
-
     db.user.findOne({ email: elemento.email }, (err, usuario)=>{
         if(err) return next(err);
         if(usuario ){
@@ -188,7 +179,6 @@ function signUp(elemento, response){
                     pass: passEnc,
                     signUpDate: moment().unix(),
                     lastLogin: moment().unix()
-                    
                 };
                 db.user.save(usuario, (err, usuarioGuardado) => { 
                     if(err) return next(err);
@@ -200,8 +190,6 @@ function signUp(elemento, response){
                     });
                 }); 
             });
-
-            
         }
     });
 }
@@ -221,24 +209,17 @@ app.post('/api/auth', auth, (request, response, next) =>{
             error: 'Bad data', 
             description: 'Se precisa al menos un campo <pass>' 
         }); 
-    } else { 
-        
-        signIn(elemento,response);
-        
-    } 
+    } else  signIn(elemento,response);
  });
 //const passNormal = "1234";
 function signIn( elemento, response){
-
     db.user.findOne({ email: elemento.email }, (err, usuario)=>{
         if(err) return next(err);
         if(!usuario ){
             response.status(400).json({});
         }else{
-
             service_pass.compare_pass( elemento.pass, usuario.pass)
             .then(valido => {
-
                 if(valido){
                     //db.user.update(lastLogin)
                     const ctoken = service_token.creaToken(usuario);
@@ -252,14 +233,9 @@ function signIn( elemento, response){
                         result: 'NOT OK',
                     });
                 }
-                
             });
-
-            
         }
     });
-    
-
 }
 
 
