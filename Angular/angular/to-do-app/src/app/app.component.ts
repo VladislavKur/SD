@@ -9,7 +9,7 @@ import { UserService } from "./services/user.service";
 export class AppComponent implements OnInit { 
   title = 'toDoApp para SD'; 
  
-  email:    string = 'test'; 
+  email:    string = 'test@dtic.ua.es'; 
   password: string = 'test'; 
    
   constructor(public userService: UserService) {} 
@@ -24,7 +24,7 @@ export class AppComponent implements OnInit {
       (loggedUser) => { 
         this.userService.setToken(loggedUser.token); 
         console.log("Login correcto"); 
-        console.log(loggedUser.token); 
+        console.log(loggedUser); 
       }, 
       (err) => {
         console.error("Error en el login"); 

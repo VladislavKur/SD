@@ -1,6 +1,6 @@
 'use strict'
 
-const port    = process.env.port || 3000;
+const port    = process.env.port || 3001;
 const https   = require('https');
 const fs      = require('fs');
 
@@ -91,7 +91,7 @@ app.post('/api/:coleccion', auth, (request, response, next) =>{
     console.log(request.body);
     const elemento = request.body; 
  
-   if (!elemento.nombre) { 
+   if (!elemento.title) { 
     response.status(400).json ({ 
      error: 'Bad data', 
      description: 'Se precisa al menos un campo <nombre>' 

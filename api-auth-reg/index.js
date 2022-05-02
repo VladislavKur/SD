@@ -1,6 +1,6 @@
 'use strict'
 
-const port    = process.env.port || 3000;
+const port    = process.env.port || 4000;
 const https   = require('https');
 const fs      = require('fs');
 
@@ -103,7 +103,7 @@ app.post('/api/user', auth, (request, response, next) =>{
     console.log(request.body);
     const elemento = request.body; 
  
-   if (!elemento.nombre) { 
+   if (!elemento.title) { 
     response.status(400).json ({ 
      error: 'Bad data', 
      description: 'Se precisa al menos un campo <nombre>' 
@@ -143,10 +143,10 @@ https.createServer( OPTIONS_HTTPS, app).listen(port , () => {
     console.log(` SECURE API RESTFul CRUD ejecutandose desde https://localhost:${port}/api/user:id`);
 });
 
-app.post('/api/auth/reg', auth, (request, response, next) =>{
+app.post('/api/auth/reg', (request, response, next) =>{
     console.log(request.body);
     const elemento = request.body; 
-    
+    console.log("asdasd"); 
     if (!elemento.nombre) { 
         response.status(400).json ({ 
             error: 'Bad data', 
@@ -195,10 +195,10 @@ function signUp(elemento, response){
 }
 
 
-app.post('/api/auth', auth, (request, response, next) =>{
+app.post('/api/auth',  (request, response, next) =>{
     console.log(request.body);
     const elemento = request.body; 
-    
+    console.log("elemento1");
     if (!elemento.email) { 
         response.status(400).json ({ 
             error: 'Bad data', 
@@ -213,23 +213,28 @@ app.post('/api/auth', auth, (request, response, next) =>{
  });
 //const passNormal = "1234";
 function signIn( elemento, response){
+    console.log("elemento1");
     db.user.findOne({ email: elemento.email }, (err, usuario)=>{
         if(err) return next(err);
         if(!usuario ){
+            console.log("elemento2");
             response.status(400).json({});
         }else{
+            console.log("elemento3");
             service_pass.compare_pass( elemento.pass, usuario.pass)
             .then(valido => {
                 if(valido){
+                    console.log("valido");
                     //db.user.update(lastLogin)
                     const ctoken = service_token.creaToken(usuario);
                     response.json({
                         result: 'OK',
-                        user: elemento,
+                        user: usuario,
                         token: ctoken
                     });
                 }else{
-                    response.json({
+                    console.log("invalido");
+                    response.status(400).json({
                         result: 'NOT OK',
                     });
                 }
