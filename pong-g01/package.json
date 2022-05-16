@@ -1,0 +1,24 @@
+{
+    "name": "pong",
+    "version": "2.0.0",
+    "description": "Juego Multijugador en REd",
+    "main": "index.js",
+    "scripts": {
+        "start": "nodemon index.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "sd",
+        "juego",
+        "pong",
+        "multijugador"
+    ],
+    "author": "Vladis",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.18.1"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.16"
+    }
+}
