@@ -1,10 +1,12 @@
+const { send } = require("express/lib/response");
+
 //DECLARACIONES
 const FONT_COLOR = 'WHITE';
 const FONT_SIZE = "45px";
 const FONT_FAMILY = "impact";
 
 const FRAME_PER_SECOND = 50;
-const COMPUTER_LVL = 0.1;
+const remotePLayer_LVL = 0.1;
 
 const NUM_BALLS = 5;
 const BALL_COLOR = 'WHITE';
@@ -15,7 +17,7 @@ const BALL_VELOCITY = 5;
 const BG_COLOR = 'BLACK';
 
 const PADDLE_RIGHT_COLOR = 'WHITE';
-const PADDLE_LEFT_COLOR = 'RED';
+const PADDLE_LEFT_COLOR = 'WHITE';
 const PADDLE_WIDTH = 20;
 const PADDLE_HEIGHT = 100;
 
@@ -63,16 +65,110 @@ const net = {
         color: NET_COLOR
     }
     //DECLARACION DE LOS JUGADORES
-var localPlayer;
-var computer;
+let localPlayer;
+let remotePLayer;
 
-function setPlayer() {
+//SOCKET HELPER -----------------------------------------------------------------------!
+const WEBSOCKET_SERVER = 'http://localhost:5000';
+const LOCAL_PLAYER_COLOR = "RED";
 
-    localPlayer = playerA;
-    computer = playerB;
+let socket;
+let localPlayerIndex;
+let remotePlayerIndex;
 
+// EMISION DE ENEVENTOS
+
+function sendBallStatus() {
+    const ballStatus = {
+        x: ball.x,
+        y: ball.y,
+        speed: ball.speed,
+        velocityX: ball.velocityX,
+        velocityY: ball.velocityY
+    }
+    socket.emit('updateBall', ballStatus);
 }
 
+function sendLocalPlayerStatus(canal = 'updatePlayer') {
+    const playerStatus = {
+        y: localPlayer.y,
+        id: localPlayer.id,
+        w: localPlayer.w,
+        h: localPlayer.h //,
+            //score: localPlayer.score
+    }
+    socket.emit(canal, playerStatus)
+}
+
+function sendUpdateScore(scoreIndx) {
+    socket.emit('updateScore', scoreIndx);
+}
+// EVENTOS ENTRANTES
+
+function onHeartBeat(state) {
+    //actualizamos el estado del jugador remoto
+
+    remotePLayer.y = state.players[remotePlayerIndex].y;
+
+    //actalizamos el estado de la pelota
+    ball.x = state.ball.x;
+    ball.y = state.ball.y;
+    ball.speed = state.ball.speed;
+    ball.velocityX = state.ball.velocityX;
+    ball.velocityY = state.ball.velocityY;
+}
+
+function onUpdateScore(scoreIndx) {
+    // si es el jugador que recibe el tanto, reajusto la pelota 
+    if (scoreIndx === 1 && localPlayer.x === 0 || scoreIndx === 0 && localPlayer.x !== 0) {
+        newBall();
+    }
+    scoreIndx === 0 ? playerA.score++ : playerB.score++;
+}
+
+
+
+function setPlayer(serverCounter) {
+    function registerPlayer(local, remoto, localIndx, remoteIndx) {
+        localPlayer = local;
+        remotePLayer = remote;
+        localPlayerIndex = localIndx;
+        remoteIndx = remoteIndx;
+
+        localPlayer.id = socket.id;
+        localPlayer.color = LOCAL_PLAYER_COLOR;
+        localPlayer.y = cvs.height / 2 - localPlayer.height / 2;
+        localPlayer.score = 0;
+
+        sendLocalPlayerStatus('start');
+    }
+
+    switch (serverCounter) {
+        case 1: // si es la primera llamada, somos nosotros
+            registerPlayer(playerA, playerB, 0, 1);
+            drawText("Esperando Rival... ", cvs.width / 4, cvs.height / 2, "GREEN");
+            break;
+        case 2: // si es la segunda llamada, ya hay alguien registrado
+            if (playerA.id === undefined) {
+                registerPlayer(playerB, playerA, 1, 0);
+            }
+
+            //AMBOS JUGADORES 
+            console.log('COMENZAMOS EL JUEGO ');
+            newBall();
+            sendBallStatus();
+            socket.on('heartBeat', onHeartBeat);
+            initgameLoop();
+            break;
+    }
+
+}
+// iniciamos la conexion
+function initServerConnection() {
+    socket = io.connect(WEBSOCKET_SERVER);
+    socket.on('getCounter', setPlayer);
+    socket.on('updateScore', onUpdateScore);
+}
 
 //HELPERS basicos para el canvas
 function drawRect(x, y, w, h, color) {
@@ -95,6 +191,16 @@ function drawText(text, x, y, color = FONT_COLOR, fontSize = FONT_SIZE, fontFami
     ctx.fillText(text, x, y);
 }
 
+function drawBoard() {
+    clearCanvas();
+
+    drawNet();
+
+    drawPaddle(playerA);
+    drawPaddle(playerB);
+
+}
+
 //HELPERS basicos  jugadores
 
 function clearCanvas() {
@@ -108,8 +214,8 @@ function drawNet() {
 }
 
 function drawScore() {
-    drawText(localPlayer.score, 1.5 * (cvs.width / 4), cvs.height / 5);
-    drawText(computer.score, 2.5 * (cvs.width / 4), cvs.height / 5);
+    drawText(localPlayer.score, localPlayer.x === 0 ? 1.5 : 3.5 * (cvs.width / 4), cvs.height / 5);
+    drawText(remotePLayer.score, remotePLayer.x === 0 ? 1.5 : 3.5 * (cvs.width / 4), cvs.height / 5);
 }
 
 function drawPaddle(paddle) {
@@ -121,7 +227,7 @@ function drawBall() {
 }
 
 function isGameOver() {
-    return localPlayer.score >= NUM_BALLS || computer.score >= NUM_BALLS;
+    return localPlayer.score >= NUM_BALLS || remotePLayer.score >= NUM_BALLS;
 }
 
 function endGame() {
@@ -129,6 +235,10 @@ function endGame() {
 
     drawText("GAMEOVER", cvs.width / 3, cvs.height / 2, "BLUE", 150);
     stopGameLoop();
+    sendBallStatus();
+    sendLocalPlayerStatus();
+    setTimeout(() => { socket.disconnect(); }, 100);
+
 }
 
 function render() {
@@ -137,7 +247,7 @@ function render() {
     drawNet();
     drawScore();
     drawPaddle(localPlayer);
-    drawPaddle(computer);
+    drawPaddle(remotePLayer);
 
 
     if (isGameOver()) {
@@ -166,7 +276,7 @@ function newBall() {
     ball.velocityY = BALL_VELOCITY;
     ball.speed = BALL_VELOCITY;
 
-    pause(1000);
+    //pause(1000);
 
 }
 
@@ -185,23 +295,34 @@ function collision(b, p) {
 
 }
 
-function updateComputer() {
-    computer.y = (ball.y - (computer.h / 2)) * (1 - COMPUTER_LVL);
+/* function updateremotePLayer() {
+    remotePLayer.y = (ball.y - (remotePLayer.h / 2)) * (1 - remotePLayer_LVL);
 
-}
+} */
 
 function update() {
     // console.log("actualizando...");
     ball.x += ball.velocityX;
     ball.y += ball.velocityY;
-    updateComputer();
+    //updateremotePLayer();
     //si golpea los bordes ,rebota
     if (ball.y + ball.radius > cvs.height || ball.y - ball.radius < 0) {
         ball.velocityY = -ball.velocityY;
     }
 
+
     //Verificamos si la bola golpea la pala
     let whatPlayer = (ball.x < cvs.width / 2) ? playerA : playerB;
+    let escalar = false;
+    /*     if (whatPlayer.h < PADDLE_HEIGHT - 70) {
+            console.log("a");
+            escalar = 1;
+        }
+        if (whatPlayer.h > PADDLE_HEIGHT + 30) {
+            escalar = -1;
+        } */
+    //whatPlayer.h += (escalar * 3);
+    console.log(whatPlayer.h);
     //console.log(whatPlayer);
     if (collision(ball, whatPlayer)) {
         let colliderPoint = ball.y - (whatPlayer.y + whatPlayer.h / 2);
@@ -212,7 +333,7 @@ function update() {
         const direccion = (ball.x < cvs.width / 2) ? 1 : -1;
 
         //modificamos la velocidad de la pelota
-        angulo = ball.y < whatPlayer.y ? 1 : -1;
+        angulo = ball.y < whatPlayer.y ? -1 : 1;
         ball.velocityX = direccion * ball.speed * Math.cos(angleRad);
         ball.velocityY = ball.speed * (angulo * Math.sin(angleRad));
 
@@ -220,15 +341,22 @@ function update() {
     } else {
 
         if (ball.x - ball.radius < 0) {
-            computer.score++;
-            newBall();
+            if (localPlayerIndex === 1) {
+                newBall();
+                sendBallStatus();
+                sendUpdateScore(localPlayerIndex);
+            }
 
         } else if (ball.x + ball.radius > cvs.width) {
-            localPlayer.score++;
-            newBall();
+            if (localPlayerIndex === 0) {
+                newBall();
+                sendBallStatus();
+                sendUpdateScore(localPlayerIndex);
+            }
         }
     }
-
+    sendLocalPlayerStatus();
+    sendBallStatus();
 }
 
 function gameLoop() {
@@ -257,9 +385,9 @@ function initPaddleMovement() {
 
 
 function play() {
-    setPlayer();
+    drawBoard();
+    initServerConnection();
     initPaddleMovement();
-    initgameLoop();
 }
 
 play();

@@ -45,6 +45,7 @@ function onConnect(socket) {
     socket.on('updateBall', onUpdateBall);
     socket.on('updatePlayer', onUpdatePlayer);
     socket.on('disconnect', onDisconnect);
+    socket.on('updateScore', onUpdateScore);
 
     setInterval(heartBeat, 33);
 
@@ -55,10 +56,11 @@ function onStart(state) {
     console.log('OnStart ' + state);
     const index = connections[0] === state.id ? 0 : 1;
     const csp = currentState.players[index];
+    csp.id = state.id;
     csp.y = state.y;
     csp.w = state.w;
     csp.h = state.h;
-    csp.score = state.score;
+    csp.score = 0;
 }
 
 function onUpdateBall(state) {
@@ -71,9 +73,21 @@ function onUpdateBall(state) {
 
 };
 
-function onDisconnect() {
-    console.log('onDisconnect: ');
-    initThings();
+function onDisconnect(reason, details) {
+    console.log('onDisconnect: ', reason);
+
+    const index = connections.indexOf(this.id);
+    if (index >= 0) {
+        connections.splice(index, 1);
+
+        for (let i = 0, found = false; i < currentState.players.length && !found; i++) {
+            if (currentState.players[i].id === this.id) {
+                found = true;
+                currentState.players[i] = {};
+            }
+        }
+    }
+    // initThings();
 }
 
 function onUpdatePlayer(state) {
@@ -83,18 +97,28 @@ function onUpdatePlayer(state) {
         if (currentState.players[i].id === state.id) {
             found = true;
             currentState.players[i].y = state.y;
-            currentState.players[i].score = state.score;
+            //currentState.players[i].score = state.score;
 
         }
     }
 
 };
+
+function onUpdateScore(scoreIndx) {
+    currentState.players[scoreIndx].score++;
+    sendScoreUpdate(scoreIndx);
+}
 //Declaramos los metodos salientes
 
 function sendCounter() {
-    io.socket.emit('getCounter', connections.length);
+    io.sockets.emit('getCounter', connections.length);
 }
 
 function heartBeat() {
-    io.socket.emit('heartBeat', currentState);
+    io.sockets.emit('heartBeat', currentState);
+}
+
+function sendScoreUpdate(scoreIndx) {
+    io.sockets.emit('updateScore', scoreIndx);
+
 }
